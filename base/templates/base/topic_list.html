@@ -1,0 +1,18 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+    <div>
+        <h1>Topic List</h1>
+        {% for topic in topics %}
+
+            <div>
+                <h3>{{ topic }}</h3>
+                <hr>
+            </div>
+
+        {% endfor %}
+    <a href="{% url 'create_topic' %}">Add Topic</a>
+    </div>
+
+{% endblock content %}
