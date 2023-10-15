@@ -26,13 +26,14 @@
                     <a href="{% url 'home' %}?q={{ topic.name }}">{{ topic }}</a>
                 </div>
             {% endfor %}
-        <hr>
-        <div>
-            <a href="{% url 'topic_list' %}">Topic List</a>
-        </div>
+            <hr>
+            <div>
+                <a href="{% url 'topic_list' %}">Topic List</a>
+            </div>
         </div>
 
         <div>
+            <h5>{{ room_count }} rooms available</h5>
             {% for room in rooms %}
                 <div>
                     <span> @{{ room.user.username }} </span>
