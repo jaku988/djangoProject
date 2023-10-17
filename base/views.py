@@ -8,26 +8,29 @@ from django.contrib.auth.models import User
 
 def login_page(request):
 
+    #standardowe sprawdzenie czy użytkownik podał dane
     if request.method == 'POST':
+        #pobieramy login i hasło do zmiennych
         username = request.POST.get('username')
         password = request.POST.get('password')
-        print(password, login)
 
+        #upewniamy się że użytkownik istnieje w bazie danych
         try:
             user = User.objects.get(username=username)
         except:
             messages.error(request, 'User does not exist!')
 
+        #akceptujemy uzytkownika w sesji
         user = authenticate(request, username=username, password=password)
 
+        #jeżeli dane użytkownika udało się zaakceptować, logujemy go i przechodzimy na stronę główną
         if user is not None:
             login(request, user)
             return redirect('home')
         else:
             messages.error(request, 'Username OR Password does not exist!')
 
-    context = {}
-    return render(request, 'base/login_registration.html', context)
+    return render(request, 'base/login_registration.html')
 
 def logout_user(request):
 
@@ -37,8 +40,10 @@ def logout_user(request):
 
 def home(request):
 
+    #sprawdzamy czy istnieje argument do filtrowania
     q = request.GET.get('q') if request.GET.get('q') != None else ''
 
+    #filtrujemy po argumencie q wyszukując nazwy tematow, pokoi oraz opisow
     rooms = Room.objects.filter(
         Q(topic__name__icontains=q) |
         Q(name__icontains=q) |
