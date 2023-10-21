@@ -80,28 +80,52 @@ def home(request):
     )
     topics = Topic.objects.all()
     room_count = rooms.count()
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
     context = {'rooms': rooms,
                'topics': topics,
-               'room_count': room_count}
+               'room_count': room_count,
+               'room_messages': room_messages}
 
     return render(request, 'base/home.html',  context)
 
 def room(request, pk):
 
     room = Room.objects.get(id=pk)
+    participants = room.participants.all()
 
     if request.method == 'POST':
         body = request.POST.get("body")
         message = Message.objects.create(body=body, room=room, user=request.user)
         message.save()
+
+        if request.user not in participants:
+            room.participants.add(request.user)
+
         return redirect('room', pk)
+
 
     room_messages = room.message_set.all().order_by('created')
 
     context = {'room': room,
-               'room_messages': room_messages}
+               'room_messages': room_messages,
+               'participants': participants}
     return render(request, 'base/room.html', context)
+
+
+def user_profile(request, pk):
+
+    user = User.objects.get(id=pk)
+    rooms = user.room_set.all()
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+
+    context = {'user': user,
+               'rooms': rooms,
+               'topics': topics,
+               'room_messages': room_messages}
+
+    return render(request, 'base/profile.html', context)
 
 
 @login_required(login_url="login_page")
@@ -140,6 +164,9 @@ def delete_room(request, pk):
 
     room = Room.objects.get(id=pk)
 
+    if request.user != room.user:
+        return redirect('home')
+
     if request.user == room.user:
         if request.method == 'POST':
 
@@ -167,3 +194,18 @@ def create_topic(request):
 
     context = {'form': form}
     return render(request, 'base/create_topic.html', context)
+
+@login_required(login_url="login_page")
+def delete_message(request, pk):
+
+    message = Message.objects.get(id=pk)
+
+    if request.user != message.user:
+        return redirect('home')
+
+    if request.method == 'POST':
+
+        message.delete()
+        return redirect('room', message.room.id)
+
+    return render(request, 'base/delete.html', {'obj': message})

@@ -1,0 +1,18 @@
+
+<h3>Browse Topics</h3>
+    <hr>
+    <a href="{% url 'create_room' %}">Create Room</a>
+    <hr>
+
+    <div>
+        <a href="{% url 'home' %}">All</a>
+    </div>
+    {% for topic in topics %}
+        <div>
+            <a href="{% url 'home' %}?q={{ topic.name }}">{{ topic }}</a>
+        </div>
+    {% endfor %}
+    <hr>
+    <div>
+        <a href="{% url 'topic_list' %}">Topic List</a>
+    </div>

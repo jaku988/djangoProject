@@ -1,36 +1,62 @@
 {% extends 'main.html' %}
 
 {% block content %}
-    <h1>Room Template</h1>
 
-    <h2>Opis: </h2> {{ room.description }}
-    <h3>Autor: </h3> {{ room.user }}
+<style>
+    .room-container{
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+    }
+</style>
 
+<div class="room-container">
 
-<div class="comment-wrapper">
-    <h3>Conversation:</h3>
-    <hr>
     <div>
-        {% for message in room_messages %}
+        <h1>{{ room.name }}</h1>
+
+        <h2>Opis: </h2> {{ room.description }}
+        <h3>Autor: </h3> {{ room.user }}
+
+
+            <div class="comment-wrapper">
+                <h3>Conversation:</h3>
+                <hr>
+                <div>
+                    {% for message in room_messages %}
+                        <div>
+                            <small>@{{ message.user }}  {{ message.created|timesince }} ago </small>
+                            <p>{{ message }}</p><br>
+                            {% if request.user == message.user %}
+                                <a href="{% url 'delete_message' message.id %}">Delete</a>
+                            {% endif %}
+                        <hr>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        {% if request.user.is_authenticated %}
+        <div>
+            <form method="POST" action="">
+                {% csrf_token %}
+                <input type="text" name="body" placeholder="Write Your messages here..." />
+
+            </form>
+        </div>
+
+    {% endif %}
+    </div>
+
+    <div>
+
+        <h3>Participants</h3>
+        <hr>
+        {% for participant in participants %}
             <div>
-                <small>@{{ message.user }}  {{ message.created|timesince }} ago </small>
-            <p>{{ message }}</p>
-            <hr>
+                <p>@{{ participant.username }}</p>
             </div>
         {% endfor %}
     </div>
 
-
 </div>
-
-{% if request.user.is_authenticated %}
-<div>
-    <form method="POST" action="">
-        {% csrf_token %}
-        <input type="text" name="body" placeholder="Write Your messages here..." />
-
-    </form>
-</div>
-{% endif %}
-
 {% endblock content %}
